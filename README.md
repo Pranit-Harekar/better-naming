@@ -1,71 +1,36 @@
-# variablegenie README
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 
-This is the README for your extension "variablegenie". After writing up a brief description, we recommend including the following sections.
+# Better Naming - VS Code Extension
 
-## Features
+> A genie in a bottle, ready to grant developers' wishes for well-named variables
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+This extension suggests meaningful names for variables, functions and classes
+using the OpenAI's text completions API.
 
-For example if there is an image subfolder under your extension project workspace:
+[Extension Link](https://marketplace.visualstudio.com/items?itemName=pranit-harekar.BetterNaming)
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+https://user-images.githubusercontent.com/17886017/219983224-cafde37d-99b7-4f32-87e9-69c322514617.mov
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+This extension uses OpenAI's [Node.js library](https://github.com/openai/openai-node) to access their [Text Completion API](https://platform.openai.com/docs/guides/completion/text-completion) therefore it needs to be configured with your account's secret key, which is available on the [website](https://beta.openai.com/account/api-keys). Once you obtain it, you can either run `setApiKey`
+command explicitly or `suggestNames` directly to set the API key. This is a one time setup as your API key will be stored in a [SecretStorage](https://code.visualstudio.com/api/references/vscode-api#SecretStorage). Therefore the key is persisted across reloads and is independent of the current opened workspace.
 
-## Extension Settings
+## Features
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Extension currently offers following commands, which can be access via Command Palette (Cmd+Shift+P) -
 
-For example:
+- `suggestNames`: Suggests names. Select a code block and run the command to view suggestions. Additionally, if your code has "foo" as the placeholder name, it will be renamed with your selection from the suggestion list otherwise
+  extension will not rename it.
 
-This extension contributes the following settings:
+- `setApiKey`: Sets secret API key. As mentioned above, this command can be skipped if you run `suggestNames`, in which case this command will be run as a part of `suggestNames` command if the API key is missing.
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- `deleteApiKey`: Deletes secret API key
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of ...
+Initial release
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+--
