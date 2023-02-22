@@ -1,6 +1,6 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 
-# Better Naming - VS Code Extension
+# BetterNaming - VS Code Extension
 
 > A genie in a bottle, ready to grant developers' wishes for well-named variables
 
