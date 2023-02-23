@@ -5,7 +5,7 @@
 > A genie in a bottle, ready to grant developers' wishes for well-named variables
 
 This extension suggests meaningful names for variables, functions and classes
-using the OpenAI's text completions API.
+using OpenAI's text completions API.
 
 [Extension Link](https://marketplace.visualstudio.com/items?itemName=pranit-harekar.BetterNaming)
 
@@ -28,6 +28,10 @@ Extension currently offers following commands, which can be access via Command P
 - `deleteApiKey`: Deletes secret API key
 
 ## Release Notes
+
+### 1.0.1
+
+Improved error handling so API & other errors are now visible
 
 ### 1.0.0
 

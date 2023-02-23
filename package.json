@@ -1,11 +1,11 @@
 {
   "name": "BetterNaming",
   "displayName": "BetterNaming",
-  "description": "A genie in a bottle, ready to grant developers' wishes for well-named variables",
+  "description": "Suggests meaningful names for variables, functions and classes using OpenAI's text completions API",
   "repository": "https://github.com/Pranit-Harekar/better-naming",
   "author": "Pranit Harekar <pranitharekar@pm.me>",
   "publisher": "pranit-harekar",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.75.0"
   },

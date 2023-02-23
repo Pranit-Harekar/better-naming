@@ -1,18 +1,39 @@
 import { Configuration, OpenAIApi } from 'openai'
-import {
-  ExtensionContext,
-  OutputChannel,
-  Range,
-  SecretStorage,
-  window,
-} from 'vscode'
-import { parseResult, printChannelOutput } from './helpers'
+import { ExtensionContext, OutputChannel, Range, window } from 'vscode'
 
-const numberOfSuggestions = 3
+import { handleError, parseResult, printOutput, showPopup } from './helpers'
+
+const numberOfCompletions = 3
 const OPENAI_API_KEY = 'OPENAI_API_KEY'
 
 // store previous input to avoid repeating variable names
 let previousInput = ''
+
+/**
+ * Gets api key from secrets or prompts user for it
+ * @param context
+ * @param outputChannel
+ * @returns
+ */
+async function getApiKey(
+  context: ExtensionContext,
+  outputChannel: OutputChannel,
+) {
+  // get api key from secrets
+  const secrets = context.secrets
+  let apiKey = await secrets.get(OPENAI_API_KEY)
+
+  // if no api key, prompt user for it
+  if (!apiKey) {
+    apiKey = await setApiKey(context, outputChannel)
+  }
+
+  if (!apiKey) {
+    throw new Error("Couldn't get API key")
+  }
+
+  return apiKey
+}
 
 /**
  * Suggests names for a given code selection
@@ -24,26 +45,7 @@ export async function suggestNames(
   context: ExtensionContext,
   outputChannel: OutputChannel,
 ) {
-  let apiKey: string | undefined
-
-  try {
-    // get api key from secrets
-    const secrets: SecretStorage = context.secrets
-    apiKey = await secrets.get(OPENAI_API_KEY)
-
-    // if no api key, prompt user for it
-    if (!apiKey) {
-      apiKey = await setApiKey(context, outputChannel)
-    }
-
-    if (!apiKey) {
-      throw new Error("BetterNaming: Couldn't get api key")
-    }
-  } catch (error) {
-    console.error(error)
-    window.showInformationMessage(`BetterNaming: Set your OpenAI API key`)
-    return
-  }
+  let apiKey = await getApiKey(context, outputChannel)
 
   // create openai api client
   const configuration = new Configuration({
@@ -57,9 +59,7 @@ export async function suggestNames(
 
   // if no text is highlighted, prompt user to highlight text
   if (!editor || !selection || selection.isEmpty) {
-    window.showInformationMessage(
-      `BetterNaming: Select code to generate variable names`,
-    )
+    showPopup('Select code to generate names')
     return
   }
 
@@ -75,7 +75,7 @@ export async function suggestNames(
     // call openai api
     const completion = await openai.createCompletion({
       model: 'text-davinci-003',
-      n: numberOfSuggestions,
+      n: numberOfCompletions,
       prompt,
     })
 
@@ -83,14 +83,12 @@ export async function suggestNames(
     const result = completion.data.choices[0].text
 
     if (!result) {
-      window.showInformationMessage(
-        `BetterNaming: No suggestions found. Please try again.`,
-      )
+      showPopup('No suggestions found. Please try again.')
       return
     }
 
     const parsedResult = parseResult(result)
-    printChannelOutput(outputChannel, `BetterNaming: ${parsedResult}`, true)
+    printOutput(outputChannel, parsedResult)
 
     window.showQuickPick(parsedResult, {
       onDidSelectItem: (item) => {
@@ -102,11 +100,9 @@ export async function suggestNames(
         }
       },
     })
-  } catch (error) {
-    window.showErrorMessage(
-      `BetterNaming: Something went wrong, please retry command`,
-    )
-    console.error(error)
+  } catch (error: any) {
+    let defaultMessage = 'Something went wrong, please retry command'
+    handleError(defaultMessage, error, outputChannel)
   }
 
   previousInput = input
@@ -123,7 +119,7 @@ export async function setApiKey(
   outputChannel: OutputChannel,
 ) {
   try {
-    const secrets: SecretStorage = context.secrets
+    const secrets = context.secrets
     const validateInput = (value: string) => {
       if (!value || value.length === 0) {
         return 'Please enter your OpenAI secret API key'
@@ -136,22 +132,23 @@ export async function setApiKey(
       title: 'Enter you OpenAI secret API key',
       placeHolder: 'Enter you OpenAI secret API key',
       prompt:
-        'You can get your API key from https://beta.openai.com/account/api-keys',
+        'You can get your API key from https://platform.openai.com/account/api-keys',
       ignoreFocusOut: true,
       validateInput,
     })
 
     if (!apiKey) {
-      throw new Error("BetterNaming: Couldn't get api key")
+      throw new Error('No api key provided')
     }
 
     // store api key in secrets
     await secrets.store(OPENAI_API_KEY, apiKey)
-    printChannelOutput(outputChannel, `BetterNaming: Logged in`, true)
+    printOutput(outputChannel, '💾 Stored api key')
 
     return apiKey
   } catch (error) {
-    console.error('BetterNaming: Error setting api key', error)
+    let defaultMessage = 'Error setting api key'
+    handleError(defaultMessage, error, outputChannel)
   }
 }
 
@@ -165,10 +162,11 @@ export async function deleteApiKey(
   outputChannel: OutputChannel,
 ) {
   try {
-    const secrets: SecretStorage = context.secrets
+    const secrets = context.secrets
     await secrets.delete(OPENAI_API_KEY)
-    printChannelOutput(outputChannel, `BetterNaming: Logged out`, true)
+    printOutput(outputChannel, '🗑️ Deleted api key')
   } catch (error) {
-    console.error(error)
+    let defaultMessage = 'Error deleting api key'
+    handleError(defaultMessage, error, outputChannel)
   }
 }
